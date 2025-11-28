@@ -1,0 +1,7 @@
+# CompileFlags:
+#   Add: [
+#     "-I/opt/ros/humble/include",
+#     "-I/app/ros2_ws/install/rclcpp/include",
+#     "-I/app/ros2_ws/install/std_msgs/include"
+#   ]
+#
