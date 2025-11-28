@@ -13,17 +13,17 @@ enum class Direction {
 namespace QuadTree {
 
 QuadTree::QuadTree(
-    std::vector<int> &grid, int height, int width, int depth = 10
+    std::vector<int8_t> &grid, int height, int width, int depth = 10
 )
     : root_(nullptr), depth_(depth), height_(height), width_(width) {
   size_ = std::max(height, width);
-  size_ = (size_ % 2) ? size_ : size_ + 1;
+  size_ = nextPowerOf2(size_);
   root_ = build(grid, 0, 0, size_, 0);
 }
 
 QuadTree::QuadTree(int size, int depth = 10)
     : root_(nullptr), depth_(depth), height_(size), width_(size) {
-  size_ = (size % 2) ? size : size + 1;
+  size_ = nextPowerOf2(size);
   root_ = new QuadTreeNode(0, 0, 0, size, true);
 }
 
@@ -74,15 +74,17 @@ bool QuadTree::isValid(int x, int y) {
 // }
 
 std::pair<bool, int>
-QuadTree::isHomogenous(std::vector<int> &grid, int x, int y, int size) {
+QuadTree::isHomogenous(std::vector<int8_t> &grid, int x, int y, int size) {
   bool seen_free     = false;
   bool seen_obstacle = false;
 
   for (int i = x; i < x + size; i++) {
     for (int j = y; j < y + size; j++) {
       int cell = 0;
-      if (isValid(i, j))
+      if (isValid(i, j)) {
         cell = grid[i * width_ + j];
+        cell = (cell == -1) ? 0 : cell;
+      }
 
       if (cell == 0)
         seen_free = true;
@@ -90,7 +92,7 @@ QuadTree::isHomogenous(std::vector<int> &grid, int x, int y, int size) {
         seen_obstacle = true;
 
       if (seen_free && seen_obstacle)
-        return {false, 0};
+        return {false, 100};
     }
   }
 
@@ -98,7 +100,7 @@ QuadTree::isHomogenous(std::vector<int> &grid, int x, int y, int size) {
 }
 
 QuadTreeNode *
-QuadTree::build(std::vector<int> &grid, int x, int y, int size, int depth) {
+QuadTree::build(std::vector<int8_t> &grid, int x, int y, int size, int depth) {
   auto homogeneity = isHomogenous(grid, x, y, size);
   if (depth >= depth_ || homogeneity.first) {
     return new QuadTreeNode(homogeneity.second, x, y, size, true);
@@ -137,6 +139,13 @@ int QuadTree::query(QuadTreeNode *node, int x, int y) {
   }
 
   return -1;
+}
+
+int QuadTree::nextPowerOf2(int n) {
+  int p = 1;
+  while (p < n)
+    p <<= 1;
+  return p;
 }
 
 void QuadTree::update(QuadTreeNode *node, int x, int y, int val, int depth) {
