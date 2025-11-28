@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -27,9 +28,8 @@ add_library(${PROJECT_NAME}
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
  
 # install the include/my_cpp_library directory to the install/include/my_cpp_library
-install(
-  DIRECTORY include/${PROJECT_NAME}
-  DESTINATION include
+install(DIRECTORY include/
+  DESTINATION include/
 )
  
 install(
@@ -43,11 +43,22 @@ install(
 
 # nodes
 add_executable(quadtree_viz_node src/main.cpp)
-ament_target_dependencies(quadtree_viz_node rclcpp std_msgs)
+ament_target_dependencies(quadtree_viz_node rclcpp std_msgs nav_msgs)
 target_link_libraries(quadtree_viz_node ${PROJECT_NAME})
 
 install(TARGETS quadtree_viz_node
         DESTINATION lib/${PROJECT_NAME})
+
+# Install the launch file
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch/
+)
+
+# Install the map file
+install(DIRECTORY maps/
+  DESTINATION share/${PROJECT_NAME}/maps/
+) 
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

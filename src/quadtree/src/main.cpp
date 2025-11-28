@@ -1,3 +1,4 @@
+#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "quadtree/QuadTree.h"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -8,6 +9,7 @@
 #include <vector>
 
 using namespace std::chrono_literals;
+using namespace std::placeholders;
 
 class QuadTreeVizNode : public rclcpp::Node {
 public:
@@ -15,39 +17,30 @@ public:
     timer_base_ = this->create_wall_timer(
         500ms, std::bind(&QuadTreeVizNode::timerCallback, this)
     );
+
+    auto qos = rclcpp::QoS(10).reliable().transient_local();
+
+    map_sub_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
+        "/map", qos, std::bind(&QuadTreeVizNode::mapCallback, this, _1)
+    );
   }
 
 private:
-  void timerCallback() {
-    std::vector<int> grid = {0, 100, 100, 100, 100, 100, 100, 100};
-    int height            = 2;
-    int width             = 4;
+  void mapCallback(nav_msgs::msg::OccupancyGrid::SharedPtr msg) {
+    int height               = msg->info.height;
+    int width                = msg->info.width;
+    std::vector<int8_t> data = msg->data;
 
-    QuadTree::QuadTree tree(grid, height, width, 10);
-    RCLCPP_INFO(this->get_logger(), "Before Update:");
     RCLCPP_INFO(
-        this->get_logger(), "Query (0 0): %d, Expected: 100", tree.query(0, 0)
+        this->get_logger(), "Height and width from msg: %d %d", height, width
     );
-    RCLCPP_INFO(
-        this->get_logger(), "Query (1 0): %d, Expected: 100", tree.query(1, 0)
-    );
-
-    tree.printTree();
-
-    tree.update(0, 0, 100);
-
-    RCLCPP_INFO(this->get_logger(), "After Update:");
-    RCLCPP_INFO(
-        this->get_logger(), "Query (0 0): %d, Expected: 0", tree.query(0, 0)
-    );
-    RCLCPP_INFO(
-        this->get_logger(), "Query (1 0): %d, Expected: 100", tree.query(1, 0)
-    );
-    tree.printTree();
   }
+
+  void timerCallback() {}
 
 private:
   rclcpp::TimerBase::SharedPtr timer_base_;
+  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr map_sub_;
 };
 
 int main(int argc, char *argv[]) {

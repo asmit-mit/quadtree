@@ -17,11 +17,13 @@ QuadTree::QuadTree(
 )
     : root_(nullptr), depth_(depth), height_(height), width_(width) {
   size_ = std::max(height, width);
+  size_ = (size_ % 2) ? size_ : size_ + 1;
   root_ = build(grid, 0, 0, size_, 0);
 }
 
 QuadTree::QuadTree(int size, int depth = 10)
-    : root_(nullptr), size_(size), depth_(depth), height_(size), width_(size) {
+    : root_(nullptr), depth_(depth), height_(size), width_(size) {
+  size_ = (size % 2) ? size : size + 1;
   root_ = new QuadTreeNode(0, 0, 0, size, true);
 }
 
