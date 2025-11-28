@@ -10,7 +10,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     map_file_path = os.path.join(
-        get_package_share_directory('quadtree'),
+        get_package_share_directory('package_test'),
         'maps',
         'igvc_map.yaml'
     )
