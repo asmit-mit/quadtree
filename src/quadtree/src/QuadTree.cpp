@@ -34,6 +34,8 @@ int QuadTree::query(int x, int y) {
   return query(root_, x, y);
 }
 int QuadTree::getSize() { return size_; }
+int QuadTree::getHeight() { return height_; }
+int QuadTree::getWidth() { return width_; }
 
 void QuadTree::update(int x, int y, int val) {
   if (!isValid(x, y))
@@ -41,6 +43,8 @@ void QuadTree::update(int x, int y, int val) {
 
   return update(root_, x, y, val, 0);
 }
+
+void QuadTree::printTree() { printTree(root_, 0); }
 
 bool QuadTree::isValid(int x, int y) {
   return (x >= 0 && y >= 0 && x < height_ && y < width_);
@@ -137,7 +141,7 @@ void QuadTree::update(QuadTreeNode *node, int x, int y, int val, int depth) {
   if (!node)
     return;
 
-  if (depth >= depth_) {
+  if (depth >= depth_ || node->size == 1) {
     node->is_leaf = true;
     node->val     = val;
     return;
@@ -173,6 +177,26 @@ void QuadTree::update(QuadTreeNode *node, int x, int y, int val, int depth) {
       delete node->children[i];
       node->children[i] = nullptr;
     }
+  }
+}
+
+void QuadTree::printTree(QuadTreeNode *node, int depth = 0) {
+  if (!node) {
+    for (int i = 0; i < depth; i++)
+      printf("  ");
+    printf("null\n");
+    return;
+  }
+
+  for (int i = 0; i < depth; i++)
+    printf("  ");
+  printf("Node value: %d\n", node->val);
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < depth; j++)
+      printf("  ");
+    printf("Child %d:\n", i);
+    printTree(node->children[i], depth + 1);
   }
 }
 

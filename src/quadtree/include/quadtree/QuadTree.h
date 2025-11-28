@@ -18,6 +18,7 @@ public:
   int getWidth();
 
   void update(int x, int y, int val);
+  void printTree();
 
 private:
   bool isValid(int x, int y);
@@ -30,6 +31,7 @@ private:
   int query(QuadTreeNode *node, int x, int y);
 
   void update(QuadTreeNode *node, int x, int y, int val, int depth);
+  void printTree(QuadTreeNode *node, int depth);
 
 private:
   QuadTreeNode *root_;

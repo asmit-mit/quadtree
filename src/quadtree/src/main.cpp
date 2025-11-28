@@ -19,17 +19,31 @@ public:
 
 private:
   void timerCallback() {
-    std::vector<int> grid = {0, 100, 100, 100, 0, 100, 100, 100};
+    std::vector<int> grid = {0, 100, 100, 100, 100, 100, 100, 100};
     int height            = 2;
     int width             = 4;
 
     QuadTree::QuadTree tree(grid, height, width, 10);
+    RCLCPP_INFO(this->get_logger(), "Before Update:");
+    RCLCPP_INFO(
+        this->get_logger(), "Query (0 0): %d, Expected: 100", tree.query(0, 0)
+    );
+    RCLCPP_INFO(
+        this->get_logger(), "Query (1 0): %d, Expected: 100", tree.query(1, 0)
+    );
+
+    tree.printTree();
+
+    tree.update(0, 0, 100);
+
+    RCLCPP_INFO(this->get_logger(), "After Update:");
     RCLCPP_INFO(
         this->get_logger(), "Query (0 0): %d, Expected: 0", tree.query(0, 0)
     );
     RCLCPP_INFO(
-        this->get_logger(), "Query (0 1): %d, Expected: 100", tree.query(0, 1)
+        this->get_logger(), "Query (1 0): %d, Expected: 100", tree.query(1, 0)
     );
+    tree.printTree();
   }
 
 private:
