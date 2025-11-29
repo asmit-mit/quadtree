@@ -21,6 +21,7 @@ bool QuadTreeNode::contains(int qx, int qy) {
 }
 
 void QuadTreeNode::divide() {
+  is_leaf        = false;
   int child_size = size / 2;
 
   children[0] = new QuadTreeNode(val, x, y, child_size, true);

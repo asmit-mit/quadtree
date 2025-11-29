@@ -1,6 +1,7 @@
 #include "quadtree/QuadTree.h"
 #include "quadtree/QuadTreeNode.h"
 
+#include <iostream>
 #include <stdexcept>
 
 enum class Direction {
@@ -15,14 +16,16 @@ namespace QuadTree {
 QuadTree::QuadTree(
     std::vector<int8_t> &grid, int height, int width, int depth = 10
 )
-    : root_(nullptr), depth_(depth), height_(height), width_(width) {
+    : root_(nullptr), depth_(0), height_(height), width_(width),
+      max_depth_(depth) {
   size_ = std::max(height, width);
   size_ = nextPowerOf2(size_);
   root_ = build(grid, 0, 0, size_, 0);
 }
 
 QuadTree::QuadTree(int size, int depth = 10)
-    : root_(nullptr), depth_(depth), height_(size), width_(size) {
+    : root_(nullptr), depth_(0), height_(size), width_(size),
+      max_depth_(depth) {
   size_ = nextPowerOf2(size);
   root_ = new QuadTreeNode(0, 0, 0, size, true);
 }
@@ -38,12 +41,13 @@ int QuadTree::query(int x, int y) {
 int QuadTree::getSize() { return size_; }
 int QuadTree::getHeight() { return height_; }
 int QuadTree::getWidth() { return width_; }
+int QuadTree::getDepth() { return depth_; }
 
 void QuadTree::update(int x, int y, int val) {
   if (!isValid(x, y))
     throw std::runtime_error("QuadTree index out of bounds");
 
-  return update(root_, x, y, val, 0);
+  update(root_, x, y, val, 0);
 }
 
 void QuadTree::printTree() { printTree(root_, 0); }
@@ -102,7 +106,8 @@ QuadTree::isHomogenous(std::vector<int8_t> &grid, int x, int y, int size) {
 QuadTreeNode *
 QuadTree::build(std::vector<int8_t> &grid, int x, int y, int size, int depth) {
   auto homogeneity = isHomogenous(grid, x, y, size);
-  if (depth >= depth_ || homogeneity.first) {
+  if (depth >= max_depth_ || homogeneity.first) {
+    depth_ = std::max(depth, depth_);
     return new QuadTreeNode(homogeneity.second, x, y, size, true);
   }
 
@@ -128,8 +133,9 @@ int QuadTree::query(QuadTreeNode *node, int x, int y) {
   if (!node)
     return -1;
 
-  if (node->is_leaf)
+  if (node->is_leaf) {
     return node->val;
+  }
 
   for (int i = 0; i < 4; i++) {
     QuadTreeNode *child = node->children[i];
@@ -152,14 +158,14 @@ void QuadTree::update(QuadTreeNode *node, int x, int y, int val, int depth) {
   if (!node)
     return;
 
-  if (depth >= depth_ || node->size == 1) {
+  if (depth >= max_depth_ || node->size == 1) {
+    depth_        = std::max(depth_, depth);
     node->is_leaf = true;
     node->val     = val;
     return;
   }
 
   if (node->is_leaf) {
-    node->is_leaf = false;
     node->divide();
   }
 
@@ -172,18 +178,23 @@ void QuadTree::update(QuadTreeNode *node, int x, int y, int val, int depth) {
   }
 
   bool all_same = true;
-  int v         = node->children[0]->val;
-  for (int i = 1; i < 4; i++) {
-    QuadTreeNode *child = node->children[i];
-    if (!child || !child->is_leaf || child->val != v) {
-      all_same = false;
-      break;
+
+  if (node->children[0]) {
+    int v = node->children[0]->val;
+    for (int i = 0; i < 4; i++) {
+      QuadTreeNode *child = node->children[i];
+      if (!(child && child->is_leaf && child->val == v)) {
+        all_same = false;
+        break;
+      }
     }
+  } else {
+    all_same = false;
   }
 
   if (all_same) {
     node->is_leaf = true;
-    node->val     = v;
+    node->val     = node->children[0]->val;
     for (int i = 0; i < 4; i++) {
       delete node->children[i];
       node->children[i] = nullptr;

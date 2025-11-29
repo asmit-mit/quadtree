@@ -35,8 +35,11 @@ private:
         this->get_logger(), "Height and width from msg: %d %d", height, width
     );
 
-    QuadTree::QuadTree tree(msg->data, height, width, 10);
-    RCLCPP_INFO(this->get_logger(), "QuadTree built! size: %d", tree.getSize());
+    QuadTree::QuadTree tree(msg->data, height, width, 8);
+    RCLCPP_INFO(
+        this->get_logger(), "QuadTree built! size: %d and depth: %d",
+        tree.getSize(), tree.getDepth()
+    );
 
     nav_msgs::msg::OccupancyGrid new_msg;
     new_msg.header = msg->header;
