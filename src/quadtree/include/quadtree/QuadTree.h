@@ -32,12 +32,10 @@ private:
   std::pair<bool, int>
   isHomogenous(std::vector<int8_t> &grid, int x, int y, int size);
 
-  QuadTreeNode *
-  build(std::vector<int8_t> &grid, int x, int y, int size, int depth);
-
   int query(QuadTreeNode *node, int x, int y);
   int nextPowerOf2(int n);
 
+  void build(QuadTreeNode *node, std::vector<int8_t> &grid, int depth);
   void update(QuadTreeNode *node, int x, int y, int val, int depth);
   void printTree(QuadTreeNode *node, int depth);
 

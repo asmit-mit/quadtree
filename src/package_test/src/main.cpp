@@ -41,6 +41,9 @@ private:
         tree.getSize(), tree.getDepth()
     );
 
+    tree.update(0, 0, 100);
+    RCLCPP_INFO(this->get_logger(), "Query (0, 0): %d", tree.query(0, 0));
+
     nav_msgs::msg::OccupancyGrid new_msg;
     new_msg.header = msg->header;
     new_msg.info   = msg->info;

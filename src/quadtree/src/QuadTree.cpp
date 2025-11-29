@@ -1,7 +1,6 @@
 #include "quadtree/QuadTree.h"
 #include "quadtree/QuadTreeNode.h"
 
-#include <iostream>
 #include <stdexcept>
 
 enum class Direction {
@@ -20,7 +19,8 @@ QuadTree::QuadTree(
       max_depth_(depth) {
   size_ = std::max(height, width);
   size_ = nextPowerOf2(size_);
-  root_ = build(grid, 0, 0, size_, 0);
+  root_ = new QuadTreeNode(0, 0, 0, size_, true);
+  build(root_, grid, 0);
 }
 
 QuadTree::QuadTree(int size, int depth = 10)
@@ -103,30 +103,18 @@ QuadTree::isHomogenous(std::vector<int8_t> &grid, int x, int y, int size) {
   return {true, seen_obstacle ? 100 : 0};
 }
 
-QuadTreeNode *
-QuadTree::build(std::vector<int8_t> &grid, int x, int y, int size, int depth) {
-  auto homogeneity = isHomogenous(grid, x, y, size);
+void QuadTree::build(QuadTreeNode *node, std::vector<int8_t> &grid, int depth) {
+  auto homogeneity = isHomogenous(grid, node->x, node->y, node->size);
   if (depth >= max_depth_ || homogeneity.first) {
-    depth_ = std::max(depth, depth_);
-    return new QuadTreeNode(homogeneity.second, x, y, size, true);
+    depth_    = std::max(depth, depth_);
+    node->val = homogeneity.second;
+    return;
   }
 
-  QuadTreeNode *curr = new QuadTreeNode(0, x, y, size, false);
-  int child_size     = size / 2;
-
-  curr->children[(int)Direction::TopLeft] =
-      build(grid, x, y, child_size, depth + 1);
-
-  curr->children[(int)Direction::TopRight] =
-      build(grid, x, y + child_size, child_size, depth + 1);
-
-  curr->children[(int)Direction::BottomLeft] =
-      build(grid, x + child_size, y, child_size, depth + 1);
-
-  curr->children[(int)Direction::BottomRight] =
-      build(grid, x + child_size, y + child_size, child_size, depth + 1);
-
-  return curr;
+  node->divide();
+  for (int i = 0; i < 4; i++) {
+    build(node->children[i], grid, depth + 1);
+  }
 }
 
 int QuadTree::query(QuadTreeNode *node, int x, int y) {
