@@ -3,6 +3,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
+#include "quadtree/msg/quad_tree.hpp"
+
 #include <memory>
 #include <string>
 
@@ -40,23 +42,9 @@ private:
         this->get_logger(), "QuadTree built! size: %d and depth: %d",
         tree.getSize(), tree.getDepth()
     );
-
-    tree.update(0, 0, 100);
     RCLCPP_INFO(this->get_logger(), "Query (0, 0): %d", tree.query(0, 0));
 
-    nav_msgs::msg::OccupancyGrid new_msg;
-    new_msg.header = msg->header;
-    new_msg.info   = msg->info;
-
-    new_msg.data.resize(height * width);
-    for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
-        int idx           = i * width + j;
-        new_msg.data[idx] = tree.query(i, j);
-      }
-    }
-
-    map_pub_->publish(new_msg);
+    QuadTree::Msg::QuadTreeMsg data = tree.convertToMsg();
   }
 
   // void timerCallback() {}

@@ -1,9 +1,18 @@
 #include "quadtree/QuadTreeNode.h"
+#include "quadtree/QuadTreeNodeMsg.h"
 
 namespace QuadTree {
 
 QuadTreeNode::QuadTreeNode(int val, int x, int y, int size, bool is_leaf)
     : val(val), x(x), y(y), size(size), is_leaf(is_leaf) {
+  for (int i = 0; i < 4; i++) {
+    children[i] = nullptr;
+  }
+}
+
+QuadTreeNode::QuadTreeNode(Msg::QuadTreeNodeMsg &data)
+    : val(data.val), x(data.x), y(data.y), size(data.size),
+      is_leaf(data.is_leaf) {
   for (int i = 0; i < 4; i++) {
     children[i] = nullptr;
   }
@@ -29,6 +38,16 @@ void QuadTreeNode::divide() {
   children[2] = new QuadTreeNode(val, x + child_size, y, child_size, true);
   children[3] =
       new QuadTreeNode(val, x + child_size, y + child_size, child_size, true);
+}
+
+Msg::QuadTreeNodeMsg QuadTreeNode::getInfo() {
+  Msg::QuadTreeNodeMsg data;
+  data.val     = val;
+  data.x       = x;
+  data.y       = y;
+  data.size    = size;
+  data.is_leaf = is_leaf;
+  return data;
 }
 
 } // namespace QuadTree

@@ -1,14 +1,9 @@
 #include "quadtree/QuadTree.h"
+#include "quadtree/QuadTreeMsg.h"
 #include "quadtree/QuadTreeNode.h"
+#include "quadtree/QuadTreeNodeMsg.h"
 
 #include <stdexcept>
-
-enum class Direction {
-  TopLeft     = 0,
-  TopRight    = 1,
-  BottomLeft  = 2,
-  BottomRight = 3
-};
 
 namespace QuadTree {
 
@@ -28,6 +23,13 @@ QuadTree::QuadTree(int size, int depth = 10)
       max_depth_(depth) {
   size_ = nextPowerOf2(size);
   root_ = new QuadTreeNode(0, 0, 0, size, true);
+}
+
+QuadTree::QuadTree(Msg::QuadTreeMsg &data)
+    : root_(nullptr), size_(data.size), depth_(data.depth),
+      height_(data.height), width_(data.width), max_depth_(data.max_depth) {
+  int idx = 0;
+  root_   = deserialize(data.nodes, idx);
 }
 
 QuadTree::~QuadTree() { delete root_; }
@@ -51,6 +53,20 @@ void QuadTree::update(int x, int y, int val) {
 }
 
 void QuadTree::printTree() { printTree(root_, 0); }
+void QuadTree::deleteTree() { delete root_; }
+
+Msg::QuadTreeMsg QuadTree::convertToMsg() {
+  Msg::QuadTreeMsg out;
+  out.height    = height_;
+  out.width     = width_;
+  out.depth     = depth_;
+  out.size      = size_;
+  out.max_depth = max_depth_;
+
+  serialize(root_, out.nodes);
+
+  return out;
+}
 
 bool QuadTree::isValid(int x, int y) {
   return (x >= 0 && y >= 0 && x < height_ && y < width_);
@@ -208,6 +224,39 @@ void QuadTree::printTree(QuadTreeNode *node, int depth = 0) {
     printf("Child %d:\n", i);
     printTree(node->children[i], depth + 1);
   }
+}
+
+void QuadTree::serialize(
+    QuadTreeNode *node, std::vector<Msg::QuadTreeNodeMsg> &out
+) {
+  if (!node) {
+    out.push_back(null_node_);
+    return;
+  }
+
+  out.push_back(node->getInfo());
+  for (int i = 0; i < 4; i++) {
+    serialize(node->children[i], out);
+  }
+}
+
+QuadTreeNode *
+QuadTree::deserialize(std::vector<Msg::QuadTreeNodeMsg> &data, int &idx) {
+  if (idx >= (int)data.size()) {
+    return nullptr;
+  }
+
+  auto val = data[idx++];
+  if (val.val == null_node_.val) {
+    return nullptr;
+  }
+
+  QuadTreeNode *node = new QuadTreeNode(val);
+  for (int i = 0; i < 4; i++) {
+    node->children[i] = deserialize(data, idx);
+  }
+
+  return node;
 }
 
 }; // namespace QuadTree
