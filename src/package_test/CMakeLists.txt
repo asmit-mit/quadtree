@@ -17,10 +17,14 @@ find_package(quadtree REQUIRED)
 
 
 # nodes
-add_executable(quadtree_viz_node src/main.cpp)
-ament_target_dependencies(quadtree_viz_node rclcpp std_msgs nav_msgs quadtree)
+add_executable(maker src/maker.cpp)
+ament_target_dependencies(maker rclcpp std_msgs nav_msgs quadtree)
+install(TARGETS maker
+        DESTINATION lib/${PROJECT_NAME})
 
-install(TARGETS quadtree_viz_node
+add_executable(reciever src/reciever.cpp)
+ament_target_dependencies(reciever rclcpp std_msgs nav_msgs quadtree)
+install(TARGETS reciever
         DESTINATION lib/${PROJECT_NAME})
 
 # Install the launch file
