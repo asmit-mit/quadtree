@@ -1,7 +1,5 @@
 #include "quadtree/QuadTree.h"
-#include "quadtree/QuadTreeMsg.h"
 #include "quadtree/QuadTreeNode.h"
-#include "quadtree/QuadTreeNodeMsg.h"
 
 #include <stdexcept>
 
@@ -12,6 +10,9 @@ QuadTree::QuadTree(
 )
     : root_(nullptr), depth_(0), height_(height), width_(width),
       max_depth_(depth) {
+  null_node_     = quadtree::msg::QuadTreeNode();
+  null_node_.val = NULL_MARKER;
+
   size_ = std::max(height, width);
   size_ = nextPowerOf2(size_);
   root_ = new QuadTreeNode(0, 0, 0, size_, true);
@@ -21,13 +22,19 @@ QuadTree::QuadTree(
 QuadTree::QuadTree(int size, int depth = 10)
     : root_(nullptr), depth_(0), height_(size), width_(size),
       max_depth_(depth) {
+  null_node_     = quadtree::msg::QuadTreeNode();
+  null_node_.val = NULL_MARKER;
+
   size_ = nextPowerOf2(size);
   root_ = new QuadTreeNode(0, 0, 0, size, true);
 }
 
-QuadTree::QuadTree(Msg::QuadTreeMsg &data)
+QuadTree::QuadTree(quadtree::msg::QuadTree &data)
     : root_(nullptr), size_(data.size), depth_(data.depth),
       height_(data.height), width_(data.width), max_depth_(data.max_depth) {
+  null_node_     = quadtree::msg::QuadTreeNode();
+  null_node_.val = NULL_MARKER;
+
   int idx = 0;
   root_   = deserialize(data.nodes, idx);
 }
@@ -55,8 +62,8 @@ void QuadTree::update(int x, int y, int val) {
 void QuadTree::printTree() { printTree(root_, 0); }
 void QuadTree::deleteTree() { delete root_; }
 
-Msg::QuadTreeMsg QuadTree::convertToMsg() {
-  Msg::QuadTreeMsg out;
+quadtree::msg::QuadTree QuadTree::toROSMsg() {
+  quadtree::msg::QuadTree out;
   out.height    = height_;
   out.width     = width_;
   out.depth     = depth_;
@@ -227,7 +234,7 @@ void QuadTree::printTree(QuadTreeNode *node, int depth = 0) {
 }
 
 void QuadTree::serialize(
-    QuadTreeNode *node, std::vector<Msg::QuadTreeNodeMsg> &out
+    QuadTreeNode *node, std::vector<quadtree::msg::QuadTreeNode> &out
 ) {
   if (!node) {
     out.push_back(null_node_);
@@ -240,14 +247,15 @@ void QuadTree::serialize(
   }
 }
 
-QuadTreeNode *
-QuadTree::deserialize(std::vector<Msg::QuadTreeNodeMsg> &data, int &idx) {
+QuadTreeNode *QuadTree::deserialize(
+    std::vector<quadtree::msg::QuadTreeNode> &data, int &idx
+) {
   if (idx >= (int)data.size()) {
     return nullptr;
   }
 
   auto val = data[idx++];
-  if (val.val == null_node_.val) {
+  if (val.val == NULL_MARKER) {
     return nullptr;
   }
 

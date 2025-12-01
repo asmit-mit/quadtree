@@ -4,9 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "QuadTreeMsg.h"
 #include "QuadTreeNode.h"
-#include "quadtree/QuadTreeNodeMsg.h"
+#include "quadtree/msg/quad_tree.hpp"
 
 namespace QuadTree {
 
@@ -14,7 +13,7 @@ class QuadTree {
 public:
   QuadTree(std::vector<int8_t> &grid, int height, int width, int depth);
   QuadTree(int size, int depth);
-  QuadTree(Msg::QuadTreeMsg &data);
+  QuadTree(quadtree::msg::QuadTree &data);
   ~QuadTree();
 
   int query(int x, int y);
@@ -28,7 +27,7 @@ public:
 
   void deleteTree();
 
-  Msg::QuadTreeMsg convertToMsg();
+  quadtree::msg::QuadTree toROSMsg();
 
 private:
   bool isValid(int x, int y);
@@ -42,8 +41,10 @@ private:
   void build(QuadTreeNode *node, std::vector<int8_t> &grid, int depth);
   void update(QuadTreeNode *node, int x, int y, int val, int depth);
   void printTree(QuadTreeNode *node, int depth);
-  void serialize(QuadTreeNode *node, std::vector<Msg::QuadTreeNodeMsg> &out);
-  QuadTreeNode *deserialize(std::vector<Msg::QuadTreeNodeMsg> &msg, int &idx);
+  void
+  serialize(QuadTreeNode *node, std::vector<quadtree::msg::QuadTreeNode> &out);
+  QuadTreeNode *
+  deserialize(std::vector<quadtree::msg::QuadTreeNode> &msg, int &idx);
 
 private:
   QuadTreeNode *root_;
@@ -51,7 +52,8 @@ private:
   int height_, width_;
   int max_depth_;
 
-  static constexpr Msg::QuadTreeNodeMsg null_node_ = {INT8_MIN, 0, 0, 0, false};
+  static constexpr int NULL_MARKER = INT8_MIN;
+  quadtree::msg::QuadTreeNode null_node_;
 };
 
 } // namespace QuadTree

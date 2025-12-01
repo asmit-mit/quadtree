@@ -6,6 +6,7 @@
 #include "quadtree/msg/quad_tree.hpp"
 
 #include <memory>
+#include <nav_msgs/msg/detail/occupancy_grid__struct.hpp>
 #include <string>
 
 using namespace std::chrono_literals;
@@ -44,7 +45,31 @@ private:
     );
     RCLCPP_INFO(this->get_logger(), "Query (0, 0): %d", tree.query(0, 0));
 
-    QuadTree::Msg::QuadTreeMsg data = tree.convertToMsg();
+    auto data = tree.toROSMsg();
+
+    QuadTree::QuadTree new_tree(data);
+    new_tree.update(0, 0, 100);
+
+    RCLCPP_INFO(
+        this->get_logger(),
+        "New QuadTree built! size: %d and depth: %d and %zu nodes",
+        new_tree.getSize(), new_tree.getDepth(), data.nodes.size()
+    );
+    RCLCPP_INFO(this->get_logger(), "Query (0, 0): %d", new_tree.query(0, 0));
+
+    nav_msgs::msg::OccupancyGrid new_msg;
+    new_msg.header = msg->header;
+    new_msg.info   = msg->info;
+    new_msg.data.resize(height * width);
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        int idx           = i * width + j;
+        new_msg.data[idx] = new_tree.query(i, j);
+      }
+    }
+
+    map_pub_->publish(new_msg);
   }
 
   // void timerCallback() {}

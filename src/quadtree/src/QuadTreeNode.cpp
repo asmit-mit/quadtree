@@ -1,5 +1,4 @@
 #include "quadtree/QuadTreeNode.h"
-#include "quadtree/QuadTreeNodeMsg.h"
 
 namespace QuadTree {
 
@@ -10,7 +9,7 @@ QuadTreeNode::QuadTreeNode(int val, int x, int y, int size, bool is_leaf)
   }
 }
 
-QuadTreeNode::QuadTreeNode(Msg::QuadTreeNodeMsg &data)
+QuadTreeNode::QuadTreeNode(quadtree::msg::QuadTreeNode &data)
     : val(data.val), x(data.x), y(data.y), size(data.size),
       is_leaf(data.is_leaf) {
   for (int i = 0; i < 4; i++) {
@@ -40,8 +39,8 @@ void QuadTreeNode::divide() {
       new QuadTreeNode(val, x + child_size, y + child_size, child_size, true);
 }
 
-Msg::QuadTreeNodeMsg QuadTreeNode::getInfo() {
-  Msg::QuadTreeNodeMsg data;
+quadtree::msg::QuadTreeNode QuadTreeNode::getInfo() {
+  quadtree::msg::QuadTreeNode data;
   data.val     = val;
   data.x       = x;
   data.y       = y;

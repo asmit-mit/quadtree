@@ -1,6 +1,6 @@
 #pragma once
 
-#include "quadtree/QuadTreeNodeMsg.h"
+#include "quadtree/msg/quad_tree_node.hpp"
 
 namespace QuadTree {
 
@@ -12,14 +12,14 @@ struct QuadTreeNode {
   QuadTreeNode *children[4];
 
   QuadTreeNode(int val, int x, int y, int size, bool is_leaf);
-  QuadTreeNode(Msg::QuadTreeNodeMsg &data);
+  QuadTreeNode(quadtree::msg::QuadTreeNode &data);
 
   ~QuadTreeNode();
 
   bool contains(int qx, int qy);
   void divide();
 
-  Msg::QuadTreeNodeMsg getInfo();
+  quadtree::msg::QuadTreeNode getInfo();
 };
 
 } // namespace QuadTree

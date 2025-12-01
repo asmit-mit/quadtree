@@ -28,10 +28,12 @@ add_library(${PROJECT_NAME}_core
   src/QuadTree.cpp
   src/QuadTreeNode.cpp
 )
- 
+
+rosidl_target_interfaces(${PROJECT_NAME}_core ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
 # this line to exports the library
 ament_export_targets(export_${PROJECT_NAME}_core HAS_LIBRARY_TARGET)
- 
+
 # install the include/my_cpp_library directory to the install/include/my_cpp_library
 install(DIRECTORY include/${PROJECT_NAME}
   DESTINATION include/
