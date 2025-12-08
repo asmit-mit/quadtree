@@ -2,7 +2,7 @@
 
 #include "quadtree/msg/quad_tree_node.hpp"
 
-namespace QuadTree {
+namespace quadtree {
 
 struct QuadTreeNode {
   int8_t val;
@@ -22,4 +22,4 @@ struct QuadTreeNode {
   quadtree::msg::QuadTreeNode getInfo();
 };
 
-} // namespace QuadTree
+} // namespace quadtree

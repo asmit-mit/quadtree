@@ -7,7 +7,7 @@
 #include "QuadTreeNode.h"
 #include "quadtree/msg/quad_tree.hpp"
 
-namespace QuadTree {
+namespace quadtree {
 
 class QuadTree {
 public:
@@ -56,4 +56,4 @@ private:
   quadtree::msg::QuadTreeNode null_node_;
 };
 
-} // namespace QuadTree
+} // namespace quadtree

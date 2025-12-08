@@ -1,7 +1,5 @@
-int32 height
-int32 width
-int32 size
-int32 depth
-int32 max_depth
+std_msgs/Header header
+
+QuadTreeMetaData info
 
 QuadTreeNode[] nodes

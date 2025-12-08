@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-namespace QuadTree {
+namespace quadtree {
 
 QuadTree::QuadTree(
     std::vector<int8_t> &grid, int height, int width, int depth = 10
@@ -30,8 +30,9 @@ QuadTree::QuadTree(int size, int depth = 10)
 }
 
 QuadTree::QuadTree(quadtree::msg::QuadTree &data)
-    : root_(nullptr), size_(data.size), depth_(data.depth),
-      height_(data.height), width_(data.width), max_depth_(data.max_depth) {
+    : root_(nullptr), size_(data.info.size), depth_(data.info.depth),
+      height_(data.info.height), width_(data.info.width),
+      max_depth_(data.info.max_depth) {
   null_node_     = quadtree::msg::QuadTreeNode();
   null_node_.val = NULL_MARKER;
 
@@ -64,11 +65,11 @@ void QuadTree::deleteTree() { delete root_; }
 
 quadtree::msg::QuadTree QuadTree::toROSMsg() {
   quadtree::msg::QuadTree out;
-  out.height    = height_;
-  out.width     = width_;
-  out.depth     = depth_;
-  out.size      = size_;
-  out.max_depth = max_depth_;
+  out.info.height    = height_;
+  out.info.width     = width_;
+  out.info.depth     = depth_;
+  out.info.size      = size_;
+  out.info.max_depth = max_depth_;
 
   serialize(root_, out.nodes);
 
@@ -267,4 +268,4 @@ QuadTreeNode *QuadTree::deserialize(
   return node;
 }
 
-}; // namespace QuadTree
+}; // namespace quadtree

@@ -1,6 +1,6 @@
 #include "quadtree/QuadTreeNode.h"
 
-namespace QuadTree {
+namespace quadtree {
 
 QuadTreeNode::QuadTreeNode(int val, int x, int y, int size, bool is_leaf)
     : val(val), x(x), y(y), size(size), is_leaf(is_leaf) {
@@ -49,4 +49,4 @@ quadtree::msg::QuadTreeNode QuadTreeNode::getInfo() {
   return data;
 }
 
-} // namespace QuadTree
+} // namespace quadtree
