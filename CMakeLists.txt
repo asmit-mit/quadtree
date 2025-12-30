@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
+# find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rosidl_typesupport_cpp REQUIRED)
@@ -32,8 +33,8 @@ include_directories(include)
 add_library(${PROJECT_NAME}_core src/QuadTree.cpp src/QuadTreeNode.cpp)
 
 # remove deprecated rosidl stuff
-rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(${PROJECT_NAME}_core "${cpp_typesupport_target}")
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} rosidl_typesupport_cpp)
+target_link_libraries(${PROJECT_NAME}_core ${cpp_typesupport_target})
 
 # this line to exports the library
 ament_export_targets(export_${PROJECT_NAME}_core HAS_LIBRARY_TARGET)
