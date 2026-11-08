@@ -2,6 +2,7 @@
 
 #include <climits>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "QuadTreeNode.h"
@@ -11,10 +12,13 @@ namespace quadtree {
 
 class QuadTree {
 public:
-  QuadTree(std::vector<int8_t> &grid, int height, int width, int depth);
-  QuadTree(int size, int depth);
+  QuadTree(std::vector<int8_t> &grid, int height, int width, int depth = 10);
+  QuadTree(int size, int depth = 10);
   QuadTree(quadtree::msg::QuadTree &data);
   ~QuadTree();
+
+  QuadTree(const QuadTree &) = delete;
+  QuadTree &operator=(const QuadTree &) = delete;
 
   int query(int x, int y);
   int getSize();
@@ -32,19 +36,25 @@ public:
 private:
   bool isValid(int x, int y);
 
-  std::pair<bool, int>
-  isHomogenous(std::vector<int8_t> &grid, int x, int y, int size);
+  bool outside(const QuadTreeNode *n) const;
+  void divideClipped(QuadTreeNode *node);
+
+  int obstacleCount(const std::vector<int> &prefix, int x, int y, int xe,
+                    int ye) const;
+
+  std::pair<bool, int> isHomogenous(const std::vector<int> &prefix, int x,
+                                    int y, int size) const;
 
   int query(QuadTreeNode *node, int x, int y);
   int nextPowerOf2(int n);
 
-  void build(QuadTreeNode *node, std::vector<int8_t> &grid, int depth);
+  void build(QuadTreeNode *node, const std::vector<int> &prefix, int depth);
   void update(QuadTreeNode *node, int x, int y, int val, int depth);
   void printTree(QuadTreeNode *node, int depth);
-  void
-  serialize(QuadTreeNode *node, std::vector<quadtree::msg::QuadTreeNode> &out);
-  QuadTreeNode *
-  deserialize(std::vector<quadtree::msg::QuadTreeNode> &msg, int &idx);
+  void serialize(QuadTreeNode *node,
+                 std::vector<quadtree::msg::QuadTreeNode> &out);
+  QuadTreeNode *deserialize(std::vector<quadtree::msg::QuadTreeNode> &msg,
+                            int &idx);
 
 private:
   QuadTreeNode *root_;
